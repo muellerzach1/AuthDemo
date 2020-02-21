@@ -29,16 +29,16 @@ namespace WebApp_OpenIDConnect_DotNet
             services.Configure<CookiePolicyOptions>(options =>
             {
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => true;
-                options.MinimumSameSitePolicy = SameSiteMode.None;
+                options.CheckConsentNeeded = context => true; // Check for term consent
+                options.MinimumSameSitePolicy = SameSiteMode.None;// Restrictions regarding where users can provide consent
             });
 
-            services.AddAuthentication(AzureADDefaults.AuthenticationScheme)
-                .AddAzureAD(options => Configuration.Bind("AzureAd", options));
+            services.AddAuthentication(AzureADDefaults.AuthenticationScheme)//Explains "AddAuthentication" which gets called upon startup 
+                .AddAzureAD(options => Configuration.Bind("AzureAd", options)); //Options will be described 
 
             services.Configure<OpenIdConnectOptions>(AzureADDefaults.OpenIdScheme, options =>
             {
-                options.Authority = options.Authority + "/v2.0/";
+                options.Authority = options.Authority + "/v2.0/"; // Version of Identity platform 
 
                 // Per the code below, this application signs in users in any Work and School
                 // accounts and any Microsoft Personal Accounts.
@@ -56,15 +56,15 @@ namespace WebApp_OpenIDConnect_DotNet
                 // Set the tenant value in the appsettings.json file to 'organizations', set
                 // ValidateIssuer, above to 'true', and add the issuers you want to accept to the
                 // options.TokenValidationParameters.ValidIssuers collection
-                options.TokenValidationParameters.ValidateIssuer = false;
+                options.TokenValidationParameters.ValidateIssuer = false; // Set wether or not you want to restrict access by user type 
             });
 
             services.AddMvc(options =>
             {
-                var policy = new AuthorizationPolicyBuilder()
-                    .RequireAuthenticatedUser()
-                    .Build();
-                options.Filters.Add(new AuthorizeFilter(policy));
+                var policy = new AuthorizationPolicyBuilder() // Instance of policy object, states acceptable terms of use 
+                    .RequireAuthenticatedUser() // Disallow users to access site without first being authenticated 
+                    .Build(); //Build policy instance with the described requirements
+                options.Filters.Add(new AuthorizeFilter(policy)); //Register the policy with options, which gets registered as service 
             })
             .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
@@ -84,9 +84,9 @@ namespace WebApp_OpenIDConnect_DotNet
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            app.UseCookiePolicy();
+            app.UseCookiePolicy(); //Calls predefined cookie policy 
 
-            app.UseAuthentication();
+            app.UseAuthentication(); //calls authentication service that we have configured
 
             app.UseMvc(routes =>
             {
